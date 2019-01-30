@@ -1,0 +1,44 @@
+---
+# sudo apt install -y python-software-properties
+- name: install python s/w properties
+  apt: pkg=python-software-properties state=present
+
+#sudo  add-apt-repository ppa:webupd8team/java
+- name: add java repository to sources
+  apt_repository: repo='ppa:webupd8team/java'
+
+#sudo apt update
+- name: update apt package cache
+  apt: update_cache=yes
+
+#sudo apt-get install default-jdk
+- name: install default java
+  apt:
+    name: default-jdk
+    state: present
+
+#change directory n extract
+- name: download url n move the file
+  #  command: chdir= /home/edureka/Downloads/ ls
+ 
+  #- name: download url 
+  get_url: 
+    url: http://apache.mirror.digitalpacific.com.au/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
+    dest: /home/edureka/Downloads/ 
+    
+#change dir n extract
+- name: download url n move the file
+  unarchive:
+    src: /home/edureka/Downloads/apache-maven-3.3.9-bin.tar.gz
+    dest: /opt/
+    remote_src: yes
+
+
+#update alternatives
+- name: update alternatives install
+  alternatives:
+    name: maven      
+    path: /opt/apache-maven-3.3.9/bin/mvn
+    link: /usr/bin/mvn
+    priority: 1001
+

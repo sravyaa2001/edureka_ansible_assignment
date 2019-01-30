@@ -1,0 +1,126 @@
+---
+
+#apt-get update
+- name: update java
+  apt:
+    upgrade: yes
+    update_cache: yes
+
+#apt-get install default-jdk
+- name: install java
+  apt:
+    name: default-jdk
+    state: present
+
+#groupadd tomcat
+- name: add a group
+  group:
+    name: tomcat
+    state: present
+
+#useradd 
+- name: add a user
+  user:
+    name: tomcat
+    shell: /bin/false
+    group: tomcat
+
+#Downloading tomcat package
+- name: downloading tomcat from web
+  uri:
+    url: "http://archive.apache.org/dist/tomcat/tomcat-8/v8.5.31/bin/apache-tomcat-8.5.31.tar.gz"
+    dest: /home/edureka
+    return_content: yes
+  register: this
+
+#creating a directory mkdir
+- name: create directory  
+  file: 
+    path: /opt/tomcat
+    state: directory
+
+#sudo tar
+- name: creating a tar file in remote
+  unarchive: 
+    src: /home/edureka/apache-tomcat-8.5.31.tar.gz
+    dest: /opt/tomcat
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+
+
+#creating a directory mkdir
+- name: create directory
+  file:
+    path: /opt/tomcat
+    state: directory
+
+#change dir cd
+- name: change directory
+  command: chdir=/opt/tomcat ls
+
+#change group chgrp
+- name: change group
+  file:
+    path: /opt/tomcat
+    group: tomcat
+    recurse: yes
+   
+#change mode g+r
+- name: change mod
+  file:
+          #path: /opt/tomcat/apache-tomcat-8.5.31
+    path: /opt/tomcat/conf
+    #state: touch
+    mode: "g+r,o+r"
+    #mode: 0644
+    recurse: yes  
+
+#change mode g+x
+- name: change mod
+  file:
+          #path: /opt/tomcat/apache-tomcat-8.5.31
+    path: /opt/tomcat/conf
+    state: touch
+    mode: "g+x,o+r"
+    #mode: 0775
+
+#change owner chown
+- name: change owner 
+  file:
+          #path: apache-tomcat-8.5.31/webapps/work/temp/logs
+    path: webapps/work/temp/logs
+    owner: tomcat
+    group: tomcat
+    #mode: "u+rwx,g+rwx,o+rwx"
+    recurse: yes
+
+- name: change permissions of logs 
+  file:
+          #path: apache-tomcat-8.5.31/webapps/work/temp/logs
+    path: /opt/tomcat/logs
+    mode: 0777
+    recurse: yes
+
+#copy code
+- name: copy
+  copy:
+    src: /etc/systemd/system/tomcat.service
+    dest: /etc/systemd/system/tomcat.service
+    owner: tomcat
+    group: tomcat
+
+
+
+#system control deamon reload
+#- name: system control daemon reload systemctl
+#  systemd:
+#    daemon_reload: yes
+
+# system control start tomcat
+    
+- name: system control start tomcat
+  systemd:
+    state: started  
+    daemon_reload: yes
+    name: tomcat
+    #enabled: yes  
